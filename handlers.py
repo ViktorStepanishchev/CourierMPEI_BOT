@@ -29,6 +29,7 @@ async def get_order(message: Message, state: FSMContext):
     # if ff.fetchone() is None:
     ff.execute(f"INSERT INTO orders VALUES (?, ?, ?)", (back.prov(back.all_id_orders), message.text, message.from_user.id))
     order_base.commit()
+    keyboard.ale()
     base.output_base()
     await message.answer(text.get_order_text, reply_markup=keyboard.back_keyboard)
     # else:

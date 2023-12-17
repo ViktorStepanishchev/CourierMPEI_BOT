@@ -1,5 +1,7 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+import base
+
 main_keyboard = InlineKeyboardMarkup\
         (
     inline_keyboard=
@@ -34,6 +36,10 @@ back_keyboard = InlineKeyboardMarkup\
 
 order_keyboard = InlineKeyboardBuilder()
 order_keyboard.button(text="Назад ↩", callback_data="back")
+def ale():
+    base.ff.execute(f"SELECT max(num) FROM orders")
+    order_keyboard.button(text="Заказ #" + str(base.ff.fetchone()[0]), callback_data='1')
+    order_keyboard.adjust(1)
 # def create():
 #     book = openpyxl.open("example.xlsx")
 #     sheet = book.active
