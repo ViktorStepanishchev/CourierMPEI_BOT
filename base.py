@@ -6,7 +6,8 @@ ff = order_base.cursor()
 ff.execute("""CREATE TABLE IF NOT EXISTS orders (
     num TEXT,
     orderr TEXT, 
-    id TEXT
+    id TEXT,
+    state_orderr TEXT
 )""")
 ff.execute("DELETE FROM orders")
 
@@ -16,6 +17,6 @@ def output_base():
     print("------UPDATE------")
     for value in order_base.execute("SELECT * FROM orders"):
              print(value)
-    print("-----------")
+    print("------------------")
     print(" ")
 

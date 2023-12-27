@@ -1,6 +1,7 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-import base
+
+import back
 
 main_keyboard = InlineKeyboardMarkup\
         (
@@ -10,6 +11,10 @@ main_keyboard = InlineKeyboardMarkup\
             InlineKeyboardButton(text="Сделать заказ! 🗳️", callback_data="order"),
             InlineKeyboardButton(text = "Стать курьером! 🏃🏼‍", callback_data="courier")
         ],
+        [
+            InlineKeyboardButton(text="Мой заказ 📦", callback_data="my_order"),
+        ]
+        ,
         [
             InlineKeyboardButton(text = "Помощь ⚙", callback_data="help"),
         ]
@@ -34,16 +39,23 @@ back_keyboard = InlineKeyboardMarkup\
     inline_keyboard=[[InlineKeyboardButton(text = "Назад ↩", callback_data="back")]]
         )
 
+back_to_orders_keyboard = InlineKeyboardMarkup\
+        (
+    inline_keyboard=[[InlineKeyboardButton(text = "Назад ↩", callback_data="courier")]]
+        )
+
+del_keyboard = InlineKeyboardMarkup\
+        (
+    inline_keyboard=[
+                      [
+                        InlineKeyboardButton(text = "Назад ↩", callback_data="back"),
+                        InlineKeyboardButton(text="Редактировать 🔧", callback_data="red_order")
+                      ]
+                    ]
+        )
+
 order_keyboard = InlineKeyboardBuilder()
 order_keyboard.button(text="Назад ↩", callback_data="back")
-def ale():
-    base.ff.execute(f"SELECT max(num) FROM orders")
-    order_keyboard.button(text="Заказ #" + str(base.ff.fetchone()[0]), callback_data='1')
+def add_inline_order_for_courier():
+    order_keyboard.button(text="Заказ #" + str(back.all_id_orders[-1]), callback_data=str(back.all_id_orders[-1]))
     order_keyboard.adjust(1)
-# def create():
-#     book = openpyxl.open("example.xlsx")
-#     sheet = book.active
-#     for row in range(1, 100):
-#         if not(sheet.cell(row=row, column=1).value is None):
-#                 order_keyboard.button(text="Заказ #"+str(sheet.cell(row=row, column=1).value), callback_data='n'+str(sheet.cell(row=row, column=1).value))
-#     order_keyboard.adjust(1)

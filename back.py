@@ -2,7 +2,7 @@ import random
 
 all_id_orders = []
 def create_num_order():
-    return random.randint(1000, 9999)
+    return random.randint(10000, 99999)
 
 def prov(all_id_orders):
     a = create_num_order()
