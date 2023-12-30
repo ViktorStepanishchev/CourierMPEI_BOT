@@ -8,7 +8,7 @@ main_keyboard = InlineKeyboardMarkup\
     inline_keyboard=
     [
         [
-            InlineKeyboardButton(text="Сделать заказ! 🗳️", callback_data="order"),
+            InlineKeyboardButton(text="Сделать заказ! 🛒️", callback_data="order"),
             InlineKeyboardButton(text = "Стать курьером! 🏃🏼‍", callback_data="courier")
         ],
         [
@@ -49,13 +49,33 @@ del_keyboard = InlineKeyboardMarkup\
     inline_keyboard=[
                       [
                         InlineKeyboardButton(text = "Назад ↩", callback_data="back"),
-                        InlineKeyboardButton(text="Редактировать 🔧", callback_data="red_order")
+                        InlineKeyboardButton(text="Удалить 🗑️", callback_data="delete_order")
                       ]
                     ]
         )
 
-order_keyboard = InlineKeyboardBuilder()
-order_keyboard.button(text="Назад ↩", callback_data="back")
+after_del_keyboard = InlineKeyboardMarkup\
+        (
+    inline_keyboard=[
+                      [
+                        InlineKeyboardButton(text = "Назад ↩", callback_data="back"),
+                        InlineKeyboardButton(text="Сделать заказ! 🛒️", callback_data="order")
+                      ]
+                    ]
+        )
+
+get_order_keyboard = InlineKeyboardMarkup\
+        (
+    inline_keyboard=[
+                      [
+                        InlineKeyboardButton(text = "Назад ↩", callback_data="courier"),
+                        InlineKeyboardButton(text="Взять заказ ✅", callback_data="get_order_clbck")
+                      ]
+                    ]
+        )
+
+order_keyboard = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="Назад ↩", callback_data="back")]])
 def add_inline_order_for_courier():
-    order_keyboard.button(text="Заказ #" + str(back.all_id_orders[-1]), callback_data=str(back.all_id_orders[-1]))
-    order_keyboard.adjust(1)
+    order_keyboard.inline_keyboard.append([InlineKeyboardButton(text="Заказ #" + str(back.all_id_orders[-1]), callback_data=str(back.all_id_orders[-1]))])
+def delete_inline_order_for_courier(num_iterat):
+    order_keyboard.inline_keyboard.pop(num_iterat)

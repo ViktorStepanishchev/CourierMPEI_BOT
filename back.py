@@ -1,4 +1,6 @@
 import random
+import base
+import keyboard
 
 all_id_orders = []
 def create_num_order():
@@ -12,3 +14,9 @@ def prov(all_id_orders):
     else:
         prov(all_id_orders)
 prov(all_id_orders)
+
+def last_string_bd():
+    last_string = 0
+    for value in base.order_base.execute("SELECT * FROM orders"):
+        last_string = value
+    return last_string
