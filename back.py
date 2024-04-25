@@ -1,6 +1,5 @@
 import random
 import base
-import keyboard
 
 all_id_orders = []
 def create_num_order():
