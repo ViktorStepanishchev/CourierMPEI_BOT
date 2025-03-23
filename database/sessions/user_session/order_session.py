@@ -11,10 +11,19 @@ async def orm_get_customer_info(session: AsyncSession,
 async def orm_add_customer(session: AsyncSession,
                            user_id: int,
                            username: str,
-                           order_id: int) -> Customer:
-    customer = Customer(id=id,
-                        user_id=user_id,
+                           order_id: int,
+                           order_text: str,
+                           order_photo: str) -> Customer:
+    customer = Customer(user_id=user_id,
                         username=username,
-                        order_id=order_id)
+                        order_id=order_id,
+                        order_text=order_text,
+                        order_photo=order_photo)
     session.add(customer)
     await session.commit()
+
+async def orm_get_costumer_attr(session: AsyncSession,
+                                attr: str):
+    column_data = getattr(Customer, attr)
+    result = await session.execute(select(column_data))
+    return result.scalars().all()
