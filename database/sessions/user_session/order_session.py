@@ -13,12 +13,14 @@ async def orm_add_customer(session: AsyncSession,
                            username: str,
                            order_id: int,
                            order_text: str,
-                           order_photo: str) -> Customer:
+                           order_photo: str,
+                           order_phone_number: str) -> Customer:
     customer = Customer(user_id=user_id,
                         username=username,
                         order_id=order_id,
                         order_text=order_text,
-                        order_photo=order_photo)
+                        order_photo=order_photo,
+                        order_phone_number=order_phone_number)
     session.add(customer)
     await session.commit()
 

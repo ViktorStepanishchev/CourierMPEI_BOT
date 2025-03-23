@@ -28,4 +28,5 @@ class Customer(Base):
     order_id = Column(Integer)
     order_text = Column(String)
     order_photo = Column(String)
+    order_phone_number = Column(String)
     in_execution = Column(Boolean, default=False)

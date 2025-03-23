@@ -3,6 +3,7 @@ from aiogram.types import Message, ReplyKeyboardRemove, CallbackQuery, InputMedi
 from aiogram.fsm.context import FSMContext
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.util import await_only
 
 from database.sessions.user_session.order_session import (orm_get_customer_info,
                                                           orm_add_customer,
@@ -11,7 +12,8 @@ from random import randint
 
 from common.texts import user_text
 from common.states import CreateOrder
-from kbds.reply_kbds.user_reply_kbds import get_send_phone
+from kbds.reply_kbds.user_reply_kbds import (get_send_phone,
+                                             skip_kbds)
 
 create_order_router = Router()
 
@@ -39,24 +41,46 @@ async def f_start_create_order(callback: CallbackQuery, state: FSMContext, sessi
                             reply_markup = None)
 
 @create_order_router.message(CreateOrder.order_text, F.text)
-async def f_get_order_text(message: Message, state: FSMContext, session: AsyncSession):
+async def f_get_order_text(message: Message, state: FSMContext):
     await state.update_data(order_text = message.text)
 
     await state.set_state(CreateOrder.order_photo)
     await message.answer(text = user_text['order_photo'],
-                         reply_markup = None)
+                         reply_markup = await skip_kbds())
 
     await state.set_state(CreateOrder.order_photo)
 
-@create_order_router.message(CreateOrder.order_photo, F.photo)
-async def f_get_order_photo(message: Message, state: FSMContext, session: AsyncSession):
-    photo = message.photo[-1].file_id
-    data = await state.get_data()
+@create_order_router.message(CreateOrder.order_photo, F.text == 'Пропустить')
+async def f_get_order_photo_skip(message: Message, state: FSMContext):
+    await state.update_data(order_photo=None)
+    await state.set_state(CreateOrder.order_phone_number)
 
+    await message.answer(text=user_text['order_phone_number'],
+                         reply_markup=await get_send_phone())
+
+
+@create_order_router.message(CreateOrder.order_photo, F.photo)
+async def f_get_order_photo(message: Message, state: FSMContext):
+    photo = message.photo[-1].file_id
+    await state.update_data(order_photo = photo)
+    await state.set_state(CreateOrder.order_phone_number)
+
+    await message.answer(text = user_text['order_phone_number'],
+                         reply_markup = await get_send_phone())
+
+@create_order_router.message(CreateOrder.order_phone_number, F.contact)
+async def f_get_order_phone(message: Message, state: FSMContext, session: AsyncSession):
+    data = await state.get_data()
+    await state.clear()
     await orm_add_customer(session = session,
                            user_id = message.from_user.id,
                            username = message.from_user.username,
                            order_id = await gen_order_id(session),
                            order_text = data['order_text'],
-                           order_photo = photo)
+                           order_photo = data['order_photo'],
+                           order_phone_number = message.contact.phone_number)
+
+
+
+
 
