@@ -3,7 +3,7 @@ from aiogram.types import Message
 from aiogram import Router
 
 from common.filters.username_filter import UsernameFilter
-from common.texts import user_text
+from common.texts.user_texts import user_text
 
 from kbds.inline_kbds.user_inline_kbds import main_kbds
 

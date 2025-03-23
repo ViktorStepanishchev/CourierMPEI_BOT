@@ -1,16 +1,15 @@
 from aiogram import F, Router
-from aiogram.types import Message, ReplyKeyboardRemove, CallbackQuery, InputMediaPhoto
+from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.util import await_only
 
 from database.sessions.user_session.order_session import (orm_get_customer_info,
                                                           orm_add_customer,
                                                           orm_get_costumer_attr)
 from random import randint
 
-from common.texts import user_text
+from common.texts.user_texts import user_text
 from common.states import CreateOrder
 from kbds.reply_kbds.user_reply_kbds import (get_send_phone,
                                              skip_kbds)
@@ -72,14 +71,30 @@ async def f_get_order_photo(message: Message, state: FSMContext):
 async def f_get_order_phone(message: Message, state: FSMContext, session: AsyncSession):
     data = await state.get_data()
     await state.clear()
+
+    order_id = await gen_order_id(session)
     await orm_add_customer(session = session,
                            user_id = message.from_user.id,
                            username = message.from_user.username,
-                           order_id = await gen_order_id(session),
+                           order_id = order_id,
                            order_text = data['order_text'],
                            order_photo = data['order_photo'],
                            order_phone_number = message.contact.phone_number)
 
+    if data['order_photo'] is not None:
+        await message.answer_photo(photo=data['order_photo'],
+                                   caption=user_text['order_is_done'].format(
+                                       order_id = order_id,
+                                       description = data['order_text'],
+                                       phone_number = message.contact.phone_number,
+                                       username = message.from_user.username,
+                                   ))
+    else:
+        await message.answer(text = user_text['order_is_done'].format(
+                                       order_id = order_id,
+                                       description = data['order_text'],
+                                       phone_number = message.contact.phone_number,
+                                       username = message.from_user.username))
 
 
 
