@@ -1,4 +1,5 @@
 from aiogram.filters import Command
+from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from aiogram import Router
 
@@ -15,7 +16,8 @@ async def f_no_username(message: Message):
                          reply_markup = None)
 
 @commands_router.message(Command('start'))
-async def f_start_command(message: Message):
+async def f_start_command(message: Message, state: FSMContext):
+    await state.clear()
     await message.answer(text = user_text['start'],
                          reply_markup = await main_kbds())
 
