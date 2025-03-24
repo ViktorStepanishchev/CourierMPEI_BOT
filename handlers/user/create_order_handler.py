@@ -13,6 +13,9 @@ from common.texts.user_texts import user_text
 from common.states import CreateOrder
 from kbds.reply_kbds.user_reply_kbds import (get_send_phone,
                                              skip_kbds)
+from kbds.inline_kbds.user_inline_kbds import (order_is_done_kbds,
+                                               main_kbds,
+                                               to_main_menu_kbds)
 
 create_order_router = Router()
 
@@ -32,8 +35,11 @@ async def f_start_create_order(callback: CallbackQuery, state: FSMContext, sessi
     if customer_data is not None:
         order_id = customer_data.order_id
         await callback.message.edit_text(text = user_text['order_is_already_exists'].format(order_id),
-                                reply_markup=None)
+                                reply_markup = await to_main_menu_kbds())
         return
+
+    await state.update_data(order_user_id = callback.from_user.id)
+    await state.update_data(order_username = callback.from_user.username)
 
     await state.set_state(CreateOrder.order_text)
     await callback.message.edit_text(text = user_text['order_text'],
@@ -69,32 +75,61 @@ async def f_get_order_photo(message: Message, state: FSMContext):
 
 @create_order_router.message(CreateOrder.order_phone_number, F.contact)
 async def f_get_order_phone(message: Message, state: FSMContext, session: AsyncSession):
-    data = await state.get_data()
-    await state.clear()
-
     order_id = await gen_order_id(session)
-    await orm_add_customer(session = session,
-                           user_id = message.from_user.id,
-                           username = message.from_user.username,
-                           order_id = order_id,
-                           order_text = data['order_text'],
-                           order_photo = data['order_photo'],
-                           order_phone_number = message.contact.phone_number)
+    await state.update_data(order_id = order_id)
+    await state.update_data(order_phone_number = message.contact.phone_number)
+
+    data = await state.get_data()
 
     if data['order_photo'] is not None:
         await message.answer_photo(photo=data['order_photo'],
-                                   caption=user_text['order_is_done'].format(
+                                   caption=user_text['my_order'].format(
                                        order_id = order_id,
                                        description = data['order_text'],
                                        phone_number = message.contact.phone_number,
                                        username = message.from_user.username,
-                                   ))
-    else:
-        await message.answer(text = user_text['order_is_done'].format(
+                                   ),
+                                   reply_markup= await order_is_done_kbds())
+        return
+
+    await message.answer(text = user_text['my_order'].format(
                                        order_id = order_id,
                                        description = data['order_text'],
                                        phone_number = message.contact.phone_number,
-                                       username = message.from_user.username))
+                                       username = message.from_user.username),
+                             reply_markup=await order_is_done_kbds())
+
+@create_order_router.callback_query(F.data == 'order_done')
+async def f_order_is_created(callback:CallbackQuery, state: FSMContext, session: AsyncSession):
+    data = await state.get_data()
+    await state.clear()
+
+    await orm_add_customer(session=session,
+                           user_id=data['order_user_id'],
+                           username=data['order_username'],
+                           order_id=data['order_id'],
+                           order_text=data['order_text'],
+                           order_photo=data['order_photo'],
+                           order_phone_number=data['order_phone_number'],)
+
+    await callback.message.edit_reply_markup(reply_markup=None)
+    await callback.message.answer(text = user_text['order_is_done'].format(
+        order_id = data['order_id']
+    ),
+        reply_markup = await to_main_menu_kbds())
+
+@create_order_router.callback_query(F.data == 'back_to_main_menu')
+async def f_cancelled_order(callback: CallbackQuery, state: FSMContext):
+    await state.clear()
+    try:
+        await callback.message.edit_text(text=user_text['start'],
+                                         reply_markup=await main_kbds())
+    except:
+        await callback.message.edit_reply_markup(reply_markup=None)
+        await callback.message.answer(text=user_text['start'],
+                             reply_markup=await main_kbds())
+
+
 
 
 
