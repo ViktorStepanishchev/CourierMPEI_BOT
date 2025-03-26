@@ -1,3 +1,4 @@
+import asyncio
 from aiogram import F, Router
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
@@ -114,10 +115,10 @@ async def f_order_is_created(callback:CallbackQuery, state: FSMContext, session:
                            order_phone_number=data['order_phone_number'],)
 
     await callback.message.edit_reply_markup(reply_markup=None)
-    await callback.message.answer(text = user_text['order_is_done'].format(
-        order_id = data['order_id']
-    ),
-        reply_markup = await to_main_menu_kbds())
+    await callback.message.answer(text = user_text['order_is_done'].format(order_id = data['order_id']))
+    await asyncio.sleep(0.8)
+    await callback.message.answer(text = user_text['start'],
+                                  reply_markup=await main_kbds())
 
 @create_order_router.callback_query(F.data == 'back_to_main_menu')
 async def f_cancelled_order(callback: CallbackQuery, state: FSMContext):
