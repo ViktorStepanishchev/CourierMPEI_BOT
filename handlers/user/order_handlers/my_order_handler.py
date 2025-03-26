@@ -1,7 +1,6 @@
 import asyncio
 from aiogram.types import Message, CallbackQuery
 from aiogram import Router, F
-from scripts.regsetup import description
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from common.texts.user_texts import user_text

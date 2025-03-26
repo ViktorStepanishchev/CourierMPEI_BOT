@@ -7,3 +7,7 @@ class CreateOrder(StatesGroup):
     order_photo = State()
     order_phone_number = State()
     order_id = State()
+
+class MessageToAdministration(StatesGroup):
+    msg_id = State()
+    username = State()
