@@ -14,16 +14,16 @@ async def main_kbds():
 
 async def order_is_done_kbds():
     btns = {
-        "Сформировать": "order_done",
-        "Изменить": "edit_order",
+        "Сформировать ✅": "order_done",
+        "Изменить 🔄": "edit_order",
         "« Отмена": "back_to_main_menu",
     }
     return await get_callback_btns(btns=btns)
 
 async def my_order_btns():
     my_order = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text='Изменить', callback_data='edit_order'),
-         InlineKeyboardButton(text='Удалить', callback_data='delete_order')],
+        [InlineKeyboardButton(text='Изменить 🔄', callback_data='edit_order'),
+         InlineKeyboardButton(text='Удалить 🗑️', callback_data='delete_order')],
         [InlineKeyboardButton(text='« Вернуться', callback_data='back_to_main_menu')]
     ])
     return my_order
@@ -38,5 +38,12 @@ async def my_order_empty_btns():
 async def to_main_menu_kbds():
     btns = {
         "« Вернуться": "back_to_main_menu",
+    }
+    return await get_callback_btns(btns=btns)
+
+async def delete_order_kbds():
+    btns = {
+        "Да" : "approve_delete_order",
+        "Нет" : "my_order"
     }
     return await get_callback_btns(btns=btns)

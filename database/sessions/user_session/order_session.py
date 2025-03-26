@@ -14,7 +14,7 @@ async def orm_add_customer(session: AsyncSession,
                            order_id: int,
                            order_text: str,
                            order_photo: str,
-                           order_phone_number: str) -> Customer:
+                           order_phone_number: str) -> None:
     customer = Customer(user_id=user_id,
                         username=username,
                         order_id=order_id,
@@ -25,7 +25,12 @@ async def orm_add_customer(session: AsyncSession,
     await session.commit()
 
 async def orm_get_costumer_attr(session: AsyncSession,
-                                attr: str):
+                                attr: str) -> Customer:
     column_data = getattr(Customer, attr)
     result = await session.execute(select(column_data))
     return result.scalars().all()
+
+async def orm_delete_order(session: AsyncSession,
+                           user_id: int) -> None:
+    await session.execute(delete(Customer).where(Customer.user_id == user_id))
+    await session.commit()
