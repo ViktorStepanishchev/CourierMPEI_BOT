@@ -15,7 +15,8 @@ from kbds.reply_kbds.user_reply_kbds import (get_send_phone,
                                              skip_kbds)
 from kbds.inline_kbds.user_inline_kbds import (order_is_done_kbds,
                                                main_kbds,
-                                               to_main_menu_kbds)
+                                               to_main_menu_kbds,
+                                               my_order_btns)
 
 create_order_router = Router()
 
@@ -35,7 +36,7 @@ async def f_start_create_order(callback: CallbackQuery, state: FSMContext, sessi
     if customer_data is not None:
         order_id = customer_data.order_id
         await callback.message.edit_text(text = user_text['order_is_already_exists'].format(order_id),
-                                reply_markup = await to_main_menu_kbds())
+                                reply_markup = await my_order_btns())
         return
 
     await state.update_data(order_user_id = callback.from_user.id)

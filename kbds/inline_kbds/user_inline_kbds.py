@@ -20,6 +20,21 @@ async def order_is_done_kbds():
     }
     return await get_callback_btns(btns=btns)
 
+async def my_order_btns():
+    my_order = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text='Изменить', callback_data='edit_order'),
+         InlineKeyboardButton(text='Удалить', callback_data='delete_order')],
+        [InlineKeyboardButton(text='« Вернуться', callback_data='back_to_main_menu')]
+    ])
+    return my_order
+
+async def my_order_empty_btns():
+    btns = {
+        "Сделать заказ! 🛒️": "order",
+        "« Вернуться": "back_to_main_menu"
+    }
+    return await get_callback_btns(btns=btns, sizes=(1,))
+
 async def to_main_menu_kbds():
     btns = {
         "« Вернуться": "back_to_main_menu",
