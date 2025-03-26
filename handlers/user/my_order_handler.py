@@ -43,9 +43,13 @@ async def f_my_order_handler(callback: CallbackQuery, session: AsyncSession):
 
 @my_order_router.callback_query(F.data == 'delete_order')
 async def f_delete_order(callback: CallbackQuery, session: AsyncSession):
-    await callback.message.edit_reply_markup(reply_markup=None)
-    await callback.message.answer(text = user_text['first_delete_order'],
+    try:
+        await callback.message.edit_text(text = user_text['first_delete_order'],
                                   reply_markup=await delete_order_kbds())
+    except:
+        await callback.message.edit_reply_markup(reply_markup=None)
+        await callback.message.answer(text = user_text['first_delete_order'],
+                                      reply_markup=await delete_order_kbds())
 
 @my_order_router.callback_query(F.data == 'approve_delete_order')
 async def f_approve_delete_order(callback: CallbackQuery, session: AsyncSession):

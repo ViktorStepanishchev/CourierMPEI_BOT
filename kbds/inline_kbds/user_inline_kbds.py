@@ -44,6 +44,6 @@ async def to_main_menu_kbds():
 async def delete_order_kbds():
     btns = {
         "Да" : "approve_delete_order",
-        "Нет" : "my_order"
+        "Нет" : "back_to_main_menu"
     }
     return await get_callback_btns(btns=btns)
