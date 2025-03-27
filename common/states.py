@@ -9,6 +9,7 @@ class CreateOrder(StatesGroup):
     order_id = State()
 
 class MessageToAdministration(StatesGroup):
+    bot_msg_id = State()
     msg_id = State()
     username = State()
 

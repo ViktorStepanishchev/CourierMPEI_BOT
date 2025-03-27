@@ -1,5 +1,5 @@
 from aiogram import F, Router
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -28,12 +28,17 @@ async def f_admin_call(callback: CallbackQuery, state: FSMContext):
 
     await callback.message.edit_text(text=user_text['admin_call'],
                                      reply_markup=await to_main_menu_kbds())
+    await state.update_data(bot_msg_id=callback.message.message_id)
 
 @help_router.message(MessageToAdministration.msg_id)
 async def f_send_admin_message(message: Message, state: FSMContext, session: AsyncSession):
     await state.update_data(msg_id = message.message_id)
     data = await state.get_data()
     await state.clear()
+
+    await message.bot.edit_message_reply_markup(chat_id = message.chat.id,
+                                                message_id = data['bot_msg_id'],
+                                                reply_markup=None)
 
     await orm_add_user_msg(session=session,
                            user_id=message.from_user.id,
@@ -45,7 +50,9 @@ async def f_send_admin_message(message: Message, state: FSMContext, session: Asy
                                        username = message.from_user.username),
                                    reply_markup=await answer_user_question(user_id=message.from_user.id,
                                                                            username=message.from_user.username))
-    await message.bot.forward_message(chat_id=CHAT_ADMIN,
+    await message.bot.copy_message(chat_id=CHAT_ADMIN,
                                       from_chat_id=message.from_user.id,
                                       message_id = message.message_id)
 
+    await message.answer(text='Вопрос отправлен',
+                         reply_markup=await to_main_menu_kbds())
