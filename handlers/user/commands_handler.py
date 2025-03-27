@@ -11,9 +11,9 @@ from kbds.inline_kbds.user_inline_kbds import main_kbds
 commands_router = Router()
 
 @commands_router.message(UsernameFilter())
-async def f_no_username(message: Message):
-    await message.answer(text = user_text['no_username'],
-                         reply_markup = None)
+async def f_no_username(message: Message, state: FSMContext):
+    await state.clear()
+    await message.answer(text = user_text['no_username'])
 
 @commands_router.message(Command('start'))
 async def f_start_command(message: Message, state: FSMContext):
