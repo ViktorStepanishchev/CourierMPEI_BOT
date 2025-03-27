@@ -11,3 +11,8 @@ class CreateOrder(StatesGroup):
 class MessageToAdministration(StatesGroup):
     msg_id = State()
     username = State()
+
+class AnswerMessageAdministration(StatesGroup):
+    user_id = State()
+    user_username = State()
+    admin_msg_id = State()

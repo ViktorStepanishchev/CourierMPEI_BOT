@@ -50,7 +50,7 @@ async def delete_order_kbds():
 
 async def help_kbds():
     btns = {
-        "Написать администрации ✉️" : "admin_call",
+        "Вопрос админам ✉️" : "admin_call",
         "« Вернуться" : "back_to_main_menu"
     }
     return await get_callback_btns(btns=btns)

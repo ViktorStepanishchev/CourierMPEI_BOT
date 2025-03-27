@@ -11,6 +11,7 @@ from common.states import MessageToAdministration
 from database.sessions.admin_session.msg_to_admin_session import orm_add_user_msg
 from kbds.inline_kbds.user_inline_kbds import (help_kbds,
                                                to_main_menu_kbds)
+from kbds.inline_kbds.admin_inline_kbds import answer_user_question
 
 help_router = Router()
 
@@ -42,7 +43,8 @@ async def f_send_admin_message(message: Message, state: FSMContext, session: Asy
     await message.bot.send_message(chat_id=CHAT_ADMIN,
                                    text=admin_help_text['user_have_a_question'].format(
                                        username = message.from_user.username),
-                                   reply_markup=None)
+                                   reply_markup=await answer_user_question(user_id=message.from_user.id,
+                                                                           username=message.from_user.username))
     await message.bot.forward_message(chat_id=CHAT_ADMIN,
                                       from_chat_id=message.from_user.id,
                                       message_id = message.message_id)
