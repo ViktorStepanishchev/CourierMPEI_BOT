@@ -3,9 +3,12 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
 from common.states import AnswerMessageAdministration
+from common.filters.chat_type_filter import ChatTypeFilter
 from config import CHAT_ADMIN
 
 answer_user_question_router = Router()
+
+answer_user_question_router.message.filter(ChatTypeFilter(chat_type=['group', 'supergroup']))
 
 @answer_user_question_router.callback_query(F.data.startswith('answer_user_question_'))
 async def f_admin_press_button_for_answer_user_question(callback: CallbackQuery, state: FSMContext):

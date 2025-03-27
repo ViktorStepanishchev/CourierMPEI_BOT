@@ -5,7 +5,10 @@ from handlers.user.order_handlers.create_order_handler import create_order_route
 from handlers.user.order_handlers.my_order_handler import my_order_router
 from handlers.user.order_handlers.help_handler import help_router
 
+from common.filters.chat_type_filter import ChatTypeFilter
+
 user_router = Router()
+user_router.message.filter(ChatTypeFilter(chat_type=['private']))
 
 user_router.include_routers(commands_router,
                             create_order_router,
