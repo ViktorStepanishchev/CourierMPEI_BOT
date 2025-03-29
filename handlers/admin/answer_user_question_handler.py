@@ -1,13 +1,14 @@
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from common.filters.username_filter import UsernameFilter
 from common.states import AnswerMessageAdministration
 from common.filters.chat_type_filter import ChatTypeFilter
 from common.texts.admin_texts import admin_help_text
 from common.texts.user_texts import user_text
 from config import CHAT_ADMIN
+from database.sessions.admin_session.msg_to_admin_session import orm_delete_user_msg
 
 answer_user_question_router = Router()
 
@@ -26,10 +27,15 @@ async def f_admin_press_button_for_answer_user_question(callback: CallbackQuery,
                                                                                          user_username=question_username))
 
 @answer_user_question_router.message(AnswerMessageAdministration.admin_msg_id)
-async def f_admin_answer_user_question(message: Message, state: FSMContext):
+async def f_admin_answer_user_question(message: Message, state: FSMContext, session: AsyncSession):
+    if message.media_group_id:
+        return
     data = await state.get_data()
     user_id, user_username, admin_msg_id = data['user_id'], data['user_username'], message.message_id
     await state.clear()
+
+    await orm_delete_user_msg(session=session,
+                              user_id=user_id)
 
     await message.bot.send_message(
         text=user_text['admin_answer'],

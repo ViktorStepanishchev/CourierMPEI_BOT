@@ -13,3 +13,13 @@ async def orm_add_user_msg(session: AsyncSession,
         msg_id = msg_id
     ))
     await session.commit()
+
+async def orm_get_user_msg_info(session: AsyncSession,
+                                user_id: int) -> MsgToAdministration:
+    data = await session.execute(select(MsgToAdministration).where(MsgToAdministration.user_id == user_id))
+    return data.scalars().first()
+
+async def orm_delete_user_msg(session: AsyncSession,
+                              user_id: int) -> None:
+    await session.execute(delete(MsgToAdministration).where(MsgToAdministration.user_id == user_id))
+    await session.commit()
