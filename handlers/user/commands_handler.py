@@ -10,6 +10,7 @@ from kbds.inline_kbds.user_inline_kbds import main_kbds
 
 commands_router = Router()
 
+@commands_router.callback_query(UsernameFilter())
 @commands_router.message(UsernameFilter())
 async def f_no_username(message: Message, state: FSMContext):
     await state.clear()
