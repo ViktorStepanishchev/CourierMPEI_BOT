@@ -8,7 +8,7 @@ from common.filters.chat_type_filter import ChatTypeFilter
 from common.texts.admin_texts import admin_help_text
 from common.texts.user_texts import user_text
 from config import CHAT_ADMIN
-from database.sessions.admin_session.msg_to_admin_session import orm_delete_user_msg
+from database.sessions.admin_session.msg_to_admin_session import orm_delete_user_msg, orm_get_user_msg_info
 
 answer_user_question_router = Router()
 
@@ -34,6 +34,9 @@ async def f_admin_answer_user_question(message: Message, state: FSMContext, sess
     user_id, user_username, admin_msg_id = data['user_id'], data['user_username'], message.message_id
     await state.clear()
 
+    data_user_question = await orm_get_user_msg_info(session=session,
+                                                     user_id=user_id)
+
     await orm_delete_user_msg(session=session,
                               user_id=user_id)
 
@@ -46,6 +49,7 @@ async def f_admin_answer_user_question(message: Message, state: FSMContext, sess
         chat_id=user_id,
         from_chat_id=CHAT_ADMIN,
         message_id=admin_msg_id,
+        reply_to_message_id=data_user_question.msg_id
     )
     await message.answer(text=admin_help_text['admin_answer_user'].format(
         admin_username=message.from_user.username,
