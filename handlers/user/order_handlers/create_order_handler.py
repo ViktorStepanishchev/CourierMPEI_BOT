@@ -68,6 +68,8 @@ async def f_get_order_photo_skip(message: Message, state: FSMContext):
 
 @create_order_router.message(CreateOrder.order_photo, F.photo)
 async def f_get_order_photo(message: Message, state: FSMContext):
+    if message.media_group_id:
+        return
     photo = message.photo[-1].file_id
     await state.update_data(order_photo = photo)
     await state.set_state(CreateOrder.order_phone_number)
