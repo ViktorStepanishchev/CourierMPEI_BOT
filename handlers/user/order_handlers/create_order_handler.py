@@ -109,7 +109,7 @@ async def f_order_is_created(callback:CallbackQuery, state: FSMContext, session:
     await state.clear()
 
     await orm_add_customer(session=session,
-                           user_id=data['order_user_id'],
+                           user_id=callback.from_user.id,
                            username=data['order_username'],
                            order_id=data['order_id'],
                            order_text=data['order_text'],
