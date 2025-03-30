@@ -30,6 +30,19 @@ async def orm_get_costumer_attr(session: AsyncSession,
     result = await session.execute(select(column_data))
     return result.scalars().all()
 
+async def orm_update_customer_info(session: AsyncSession,
+                                   user_id: int,
+                                   **kwargs) -> None:
+    fields = ['order_text', 'order_photo', 'in_execution']
+    result = await session.execute(select(Customer).where(Customer.user_id == user_id))
+    user_data = result.scalar_one_or_none()
+    for field in fields:
+        if field in kwargs and kwargs[field] != getattr(user_data, field):
+            setattr(user_data, field, kwargs[field])
+            await session.commit()
+
+
+
 async def orm_delete_order(session: AsyncSession,
                            user_id: int) -> None:
     await session.execute(delete(Customer).where(Customer.user_id == user_id))
