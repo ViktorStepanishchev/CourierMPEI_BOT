@@ -8,6 +8,11 @@ class CreateOrder(StatesGroup):
     order_phone_number = State()
     order_id = State()
 
+class EditOrder(StatesGroup):
+    edit_order_btn = State()
+    edit_order_photo = State()
+    edit_order_description = State()
+
 class MessageToAdministration(StatesGroup):
     bot_msg_id = State()
     msg_id = State()
