@@ -15,8 +15,6 @@ my_order_router = Router()
 
 @my_order_router.callback_query(F.data == 'my_order')
 async def f_my_order_handler(callback: CallbackQuery, session: AsyncSession):
-    await callback.message.edit_reply_markup(reply_markup=None)
-
     data = await orm_get_customer_info(session=session,
                                  user_id=callback.from_user.id)
 
@@ -33,6 +31,7 @@ async def f_my_order_handler(callback: CallbackQuery, session: AsyncSession):
                                          reply_markup=await my_order_btns())
         return
 
+    await callback.message.edit_reply_markup(reply_markup=None)
     await callback.message.answer_photo(photo=data.order_photo,
                                         caption=user_text['my_order'].format(order_id = data.order_id,
                                                                              description=data.order_text,
