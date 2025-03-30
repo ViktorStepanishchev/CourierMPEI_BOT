@@ -20,3 +20,14 @@ async def skip_kbds():
         resize_keyboard=True,
         one_time_keyboard=True,
     )
+
+async def edit_order_kbds():
+    keyboard = [
+        [KeyboardButton(text='Фото 📸'), KeyboardButton(text='Описание 🗒️')],
+        [KeyboardButton(text='Заполнить заново 🔄')]
+    ]
+    return ReplyKeyboardMarkup(
+        keyboard=keyboard,
+        resize_keyboard=True,
+        one_time_keyboard=True
+    )
