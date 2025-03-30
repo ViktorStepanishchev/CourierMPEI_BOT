@@ -71,7 +71,41 @@ async def f_editing_order_photo_skip(message: Message, state: FSMContext, sessio
 
 @edit_order_router.message(EditOrder.edit_order_btn, F.text == 'Описание 🗒️')
 async def f_edit_order_description(message: Message, state: FSMContext):
-    ...
+    await state.set_state(EditOrder.edit_order_description)
+    await message.answer(text=user_text['order_text'],
+                         reply_markup=await skip_kbds())
+
+@edit_order_router.message(EditOrder.edit_order_description, F.text == 'Пропустить')
+async def f_edit_order_text_skip(message: Message, state: FSMContext, session: AsyncSession):
+    await state.clear()
+    data = await orm_get_customer_info(session, message.from_user.id)
+
+    main_order_text = user_text['my_order'].format(
+        order_id=data.order_id,
+        description=data.order_text,
+        phone_number=data.order_phone_number,
+        username=data.username)
+
+    await message.answer(text=user_text['edit_order_applied'].format(value='описание') + main_order_text,
+                         reply_markup=await my_order_btns())
+
+@edit_order_router.message(EditOrder.edit_order_description, F.text)
+async def f_edit_order_text(message: Message, state: FSMContext, session: AsyncSession):
+    await state.clear()
+    data = await orm_get_customer_info(session, message.from_user.id)
+
+    main_order_text = user_text['my_order'].format(
+        order_id=data.order_id,
+        description=message.text,
+        phone_number=data.order_phone_number,
+        username=data.username)
+
+    await orm_update_customer_info(session=session,
+                                   user_id=message.from_user.id,
+                                   order_text=message.text)
+
+    await message.answer(text=user_text['edit_order_applied'].format(value='описание') + main_order_text,
+                         reply_markup=await my_order_btns())
 
 @edit_order_router.message(EditOrder.edit_order_btn, F.text == 'Заполнить заново 🔄')
 async def f_edit_order_full(message: Message, state: FSMContext):
