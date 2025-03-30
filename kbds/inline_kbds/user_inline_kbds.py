@@ -15,7 +15,6 @@ async def main_kbds():
 async def order_is_done_kbds():
     btns = {
         "Сформировать ✅": "order_done",
-        "Изменить 🔄": "edit_order",
         "« Отмена": "back_to_main_menu",
     }
     return await get_callback_btns(btns=btns)
