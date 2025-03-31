@@ -6,8 +6,7 @@ from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.sessions.user_session.order_session import (orm_get_customer_info,
-                                                          orm_add_customer,
-                                                          orm_get_costumer_attr)
+                                                          orm_add_customer,                                               orm_get_costumer_attr, orm_delete_order)
 from random import randint
 
 from common.texts.user_texts import user_text
@@ -108,9 +107,13 @@ async def f_order_is_created(callback:CallbackQuery, state: FSMContext, session:
     data = await state.get_data()
     await state.clear()
 
+    customer_data = await orm_get_customer_info(session = session, user_id = callback.from_user.id)
+    if customer_data is not None:
+        await orm_delete_order(session = session, user_id = callback.from_user.id)
+
     await orm_add_customer(session=session,
                            user_id=callback.from_user.id,
-                           username=data['order_username'],
+                           username=callback.from_user.username,
                            order_id=data['order_id'],
                            order_text=data['order_text'],
                            order_photo=data['order_photo'],
