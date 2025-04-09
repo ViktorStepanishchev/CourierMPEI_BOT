@@ -130,4 +130,12 @@ courier_text = {
 """,
 
     "order_in_kbds": "Заказ №{order_id}",
+
+    "view_order_first_info":
+"""
+ Заказ № <i>{order_id}</i> 📌
+
+🗒️ <b>Описание</b>
+«<i>{description}</i>»
+"""
 }
