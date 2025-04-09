@@ -1,5 +1,5 @@
 from aiogram import Router
-from .reg_courier import view_orders_router
+from .view_take_order_handler import view_take_order_router
 
 courier_router = Router()
-courier_router.include_router(view_orders_router)
+courier_router.include_router(view_take_order_router)
