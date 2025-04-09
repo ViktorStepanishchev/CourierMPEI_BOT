@@ -41,9 +41,12 @@ async def orm_update_customer_info(session: AsyncSession,
             setattr(user_data, field, kwargs[field])
             await session.commit()
 
-
-
 async def orm_delete_order(session: AsyncSession,
                            user_id: int) -> None:
     await session.execute(delete(Customer).where(Customer.user_id == user_id))
     await session.commit()
+
+async def orm_get_order(session: AsyncSession,
+                        order_id: int) -> Customer:
+    result = await session.execute(select(Customer).where(Customer.order_id == order_id))
+    return result.scalars().first()
