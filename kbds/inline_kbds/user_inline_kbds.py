@@ -65,7 +65,6 @@ async def orders_kbds(session: AsyncSession, page: int):
 
     orders_data_list = await orm_get_costumer_attr(session=session,
                                                    attr='order_id')
-
     builder = InlineKeyboardBuilder()
     builder.row(
         InlineKeyboardButton(text="⬅️ Вернуться в меню", callback_data="back_to_main_menu"))
@@ -88,7 +87,7 @@ async def orders_kbds(session: AsyncSession, page: int):
 async def take_order_kbds(order_id: int,
                      page: int):
     btns = {
-        "Взять": f"take_order{order_id}",
+        "Взять": f"take_order_{order_id}_{page}",
         "« Назад": f"courier_{page}"
     }
     return await get_callback_btns(btns=btns, sizes=(1,))
