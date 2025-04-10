@@ -2,9 +2,12 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from aiogram import Router
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from common.filters.username_filter import UsernameFilter
 from common.texts.user_texts import user_text
+
+from database.sessions.user_session.order_session import orm_toggle_order_in_edit
 
 from kbds.inline_kbds.user_inline_kbds import main_kbds
 
@@ -17,9 +20,9 @@ async def f_no_username(message: Message, state: FSMContext):
     await message.answer(text = user_text['no_username'])
 
 @commands_router.message(Command('start'))
-async def f_start_command(message: Message, state: FSMContext):
+async def f_start_command(message: Message, state: FSMContext, session: AsyncSession):
     await state.clear()
-    # изменить статус изменения анкеты!
+    await orm_toggle_order_in_edit(session=session, user_id=message.from_user.id)
     await message.answer(text = user_text['start'],
                          reply_markup = await main_kbds())
 

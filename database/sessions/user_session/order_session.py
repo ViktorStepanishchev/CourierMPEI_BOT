@@ -50,3 +50,11 @@ async def orm_get_order(session: AsyncSession,
                         order_id: int) -> Customer:
     result = await session.execute(select(Customer).where(Customer.order_id == order_id))
     return result.scalars().first()
+
+async def orm_toggle_order_in_edit(session: AsyncSession,
+                                   user_id: int) -> None:
+    result = await session.execute(select(Customer).where(Customer.user_id == user_id))
+    customer_data = result.scalars().first()
+    if customer_data is not None and customer_data.in_edit:
+        customer_data.in_edit = not customer_data.in_edit
+        await session.commit()
