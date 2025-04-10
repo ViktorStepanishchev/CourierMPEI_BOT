@@ -30,6 +30,7 @@ class Customer(Base):
     order_photo = Column(String)
     order_phone_number = Column(String)
     in_execution = Column(Boolean, default=False)
+    in_edit = Column(Boolean, default=False)
 
 class MsgToAdministration(Base):
     __tablename__ = "msg_to_administration"

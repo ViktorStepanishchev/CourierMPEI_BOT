@@ -19,6 +19,7 @@ async def f_no_username(message: Message, state: FSMContext):
 @commands_router.message(Command('start'))
 async def f_start_command(message: Message, state: FSMContext):
     await state.clear()
+    # изменить статус изменения анкеты!
     await message.answer(text = user_text['start'],
                          reply_markup = await main_kbds())
 

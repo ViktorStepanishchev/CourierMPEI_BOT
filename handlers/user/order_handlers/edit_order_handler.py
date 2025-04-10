@@ -14,7 +14,11 @@ from kbds.inline_kbds.user_inline_kbds import my_order_btns
 edit_order_router = Router()
 
 @edit_order_router.callback_query(F.data == 'edit_order')
-async def f_edit_order(callback: CallbackQuery, state: FSMContext):
+async def f_edit_order(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
+    await orm_update_customer_info(session=session,
+                                   user_id=callback.from_user.id,
+                                   in_edit=True)
+
     await state.set_state(EditOrder.edit_order_btn)
 
     try:
@@ -45,7 +49,8 @@ async def f_editing_order_photo(message: Message, state: FSMContext, session: As
         username=data.username)
     await orm_update_customer_info(session = session,
                                    user_id=message.from_user.id,
-                                   order_photo=message.photo[-1].file_id)
+                                   order_photo=message.photo[-1].file_id,
+                                   in_edit=False)
 
     await message.answer_photo(caption=user_text['edit_order_applied'].format(value='фото') + main_order_text,
                                 photo=message.photo[-1].file_id,
@@ -64,7 +69,8 @@ async def f_editing_order_photo_skip(message: Message, state: FSMContext, sessio
 
     await orm_update_customer_info(session=session,
                                    user_id=message.from_user.id,
-                                   order_photo=None)
+                                   order_photo=None,
+                                   in_edit=False)
     await message.answer(text=user_text['edit_order_applied'].format(value='фото') + main_order_text,
                          reply_markup=await my_order_btns())
 
@@ -78,7 +84,9 @@ async def f_edit_order_description(message: Message, state: FSMContext):
 async def f_edit_order_text_skip(message: Message, state: FSMContext, session: AsyncSession):
     await state.clear()
     data = await orm_get_customer_info(session, message.from_user.id)
-
+    await orm_update_customer_info(session=session,
+                             user_id=message.from_user.id,
+                             in_edit=False)
     main_order_text = user_text['edit_order_applied'].format(value='описание') + user_text['my_order'].format(
         order_id=data.order_id,
         description=data.order_text,
@@ -106,7 +114,8 @@ async def f_edit_order_text(message: Message, state: FSMContext, session: AsyncS
 
     await orm_update_customer_info(session=session,
                                    user_id=message.from_user.id,
-                                   order_text=message.text)
+                                   order_text=message.text,
+                                   in_edit=True)
     if data.order_photo:
         await message.answer_photo(caption=main_order_text,
                                    reply_markup=await my_order_btns(),
@@ -115,7 +124,7 @@ async def f_edit_order_text(message: Message, state: FSMContext, session: AsyncS
     await message.answer(text=main_order_text,
                          reply_markup=await my_order_btns())
 
-@edit_order_router.message(EditOrder.edit_order_btn, F.text == 'Заполнить заново 🔄')
-async def f_edit_order_full(message: Message, state: FSMContext, session: AsyncSession):
-    await state.set_state(CreateOrder.order_text)
-    await message.answer(text=user_text['order_text'])
+# @edit_order_router.message(EditOrder.edit_order_btn, F.text == 'Заполнить заново 🔄')
+# async def f_edit_order_full(message: Message, state: FSMContext):
+#     await state.set_state(CreateOrder.order_text)
+#     await message.answer(text=user_text['order_text'])
