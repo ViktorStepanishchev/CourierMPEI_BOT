@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.sessions.user_session.order_session import (orm_get_customer_info,
-                                                          orm_update_customer_info)
+                                                          orm_update_customer_info, orm_delete_order)
 from common.texts.user_texts import user_text
 from common.states import EditOrder, CreateOrder
 from kbds.reply_kbds.user_reply_kbds import (edit_order_kbds,
@@ -124,7 +124,9 @@ async def f_edit_order_text(message: Message, state: FSMContext, session: AsyncS
     await message.answer(text=main_order_text,
                          reply_markup=await my_order_btns())
 
-# @edit_order_router.message(EditOrder.edit_order_btn, F.text == 'Заполнить заново 🔄')
-# async def f_edit_order_full(message: Message, state: FSMContext):
-#     await state.set_state(CreateOrder.order_text)
-#     await message.answer(text=user_text['order_text'])
+@edit_order_router.message(EditOrder.edit_order_btn, F.text == 'Удалить и заполнить заново 🔄')
+async def f_edit_order_full(message: Message, state: FSMContext, session: AsyncSession):
+    await orm_delete_order(session, message.from_user.id)
+
+    await state.set_state(CreateOrder.order_text)
+    await message.answer(text=user_text['order_text'])

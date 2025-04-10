@@ -24,7 +24,7 @@ async def skip_kbds():
 async def edit_order_kbds():
     keyboard = [
         [KeyboardButton(text='Фото 📸'), KeyboardButton(text='Описание 🗒️')],
-        [KeyboardButton(text='Заполнить заново 🔄')]
+        [KeyboardButton(text='Удалить и заполнить заново 🔄')]
     ]
     return ReplyKeyboardMarkup(
         keyboard=keyboard,

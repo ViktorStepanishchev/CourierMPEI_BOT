@@ -20,8 +20,8 @@ async def main_kbds():
 
 async def order_is_done_kbds():
     btns = {
-        "Сформировать ✅": "order_done",
         "« Отмена": "back_to_main_menu",
+        "Сформировать ✅": "order_done"
     }
     return await get_callback_btns(btns=btns)
 
@@ -87,7 +87,7 @@ async def orders_kbds(session: AsyncSession, page: int):
 async def take_order_kbds(order_id: int,
                      page: int):
     btns = {
-        "Взять": f"take_order_{order_id}_{page}",
+        "Взять ✅": f"take_order_{order_id}_{page}",
         "« Назад": f"courier_{page}"
     }
     return await get_callback_btns(btns=btns, sizes=(1,))
