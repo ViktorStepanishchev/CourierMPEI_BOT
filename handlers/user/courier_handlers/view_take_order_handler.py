@@ -35,6 +35,10 @@ async def f_view_order(callback: CallbackQuery, session: AsyncSession):
         await callback.message.edit_reply_markup(reply_markup= await orders_kbds(session, page))
         return
 
+    if order_data.in_edit:
+        await callback.answer(text='Этот заказ редактируется')
+        await callback.message.edit_reply_markup(reply_markup= await orders_kbds(session, page))
+
     view_order_text = courier_text['view_order_first_info'].format(order_id=order_data.order_id,
                                                                 description=order_data.order_text)
     if order_data.order_photo:
