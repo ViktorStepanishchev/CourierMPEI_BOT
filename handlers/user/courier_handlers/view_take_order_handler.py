@@ -52,5 +52,3 @@ async def f_view_order(callback: CallbackQuery, session: AsyncSession):
     await callback.message.edit_text(text=view_order_text,
                                      reply_markup = await take_order_kbds(order_id=order_id,
                                                                                  page=page))
-
-# идея сделать через фильтр!
