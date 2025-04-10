@@ -1,28 +1,32 @@
 from aiogram import F, Router
-from aiogram.types import CallbackQuery, Message
-from aiogram.fsm.context import FSMContext
-from scripts.regsetup import description
+from aiogram.types import CallbackQuery
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from common.texts.user_texts import courier_text, user_text
 from kbds.inline_kbds.user_inline_kbds import orders_kbds
+from kbds.inline_kbds.user_inline_kbds import take_order_kbds
 from database.sessions.user_session.order_session import orm_get_order
 
 view_take_order_router = Router()
 
 @view_take_order_router.callback_query(F.data.startswith('courier_'))
 async def f_view_orders(callback: CallbackQuery, session: AsyncSession):
-    callback_data = callback.data.split("_")
+    callback_data = callback.data.split("_")[-1]
     if callback_data == 'courier': page=0
-    else: page = int(callback.data.split("_")[-1])
+    else: page = int(callback_data)
 
-    await callback.message.edit_text(text=courier_text['view_orders'],
-                                     reply_markup = await orders_kbds(session, page))
+    try:
+        await callback.message.edit_text(text=courier_text['view_orders'],
+                                         reply_markup = await orders_kbds(session, page))
+    except:
+        await callback.message.edit_reply_markup(reply_markup=None)
+        await callback.message.answer(text=courier_text['view_orders'],
+                                      reply_markup = await orders_kbds(session, page))
 
 @view_take_order_router.callback_query(F.data.startswith('order_'))
 async def f_view_order(callback: CallbackQuery, session: AsyncSession):
     callback_data = callback.data.split("_")
-    order_id = int(callback_data[-1])
+    order_id = int(callback_data[-2])
 
     order_data = await orm_get_order(session=session, order_id=order_id)
     if order_data is None:
@@ -37,7 +41,9 @@ async def f_view_order(callback: CallbackQuery, session: AsyncSession):
         await callback.message.edit_reply_markup(reply_markup=None)
         await callback.message.answer_photo(photo=order_data.order_photo,
                                             caption=view_order_text,
-                                            reply_markup = None) # доделать клавиатуру
+                                            reply_markup = await take_order_kbds(order_id=callback_data[-2],
+                                                                                 page=callback_data[-1]))
         return
     await callback.message.edit_text(text=view_order_text,
-                                     reply_markup = None) # доделать клавиатуру
+                                     reply_markup = await take_order_kbds(order_id=callback_data[-2],
+                                                                                 page=callback_data[-1]))
