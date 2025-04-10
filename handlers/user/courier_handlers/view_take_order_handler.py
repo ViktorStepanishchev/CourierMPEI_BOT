@@ -27,13 +27,13 @@ async def f_view_orders(callback: CallbackQuery, session: AsyncSession):
 async def f_view_order(callback: CallbackQuery, session: AsyncSession):
     callback_data = callback.data.split("_")
     order_id = int(callback_data[-2])
+    page = int(callback_data[-1])
 
     order_data = await orm_get_order(session=session, order_id=order_id)
     if order_data is None:
-        # обработка в случае редактируемого/удалённого заказа
-        ...
+        await callback.answer(text='Этот заказ был удалён')
+        await callback.message.edit_reply_markup(reply_markup= await orders_kbds(session, page))
         return
-    # добавить обработку в случае, если заказ уже взят другим курьером
 
     view_order_text = courier_text['view_order_first_info'].format(order_id=order_data.order_id,
                                                                 description=order_data.order_text)
@@ -41,9 +41,9 @@ async def f_view_order(callback: CallbackQuery, session: AsyncSession):
         await callback.message.edit_reply_markup(reply_markup=None)
         await callback.message.answer_photo(photo=order_data.order_photo,
                                             caption=view_order_text,
-                                            reply_markup = await take_order_kbds(order_id=callback_data[-2],
-                                                                                 page=callback_data[-1]))
+                                            reply_markup = await take_order_kbds(order_id=order_id,
+                                                                                 page=page))
         return
     await callback.message.edit_text(text=view_order_text,
-                                     reply_markup = await take_order_kbds(order_id=callback_data[-2],
-                                                                                 page=callback_data[-1]))
+                                     reply_markup = await take_order_kbds(order_id=order_id,
+                                                                                 page=page))
