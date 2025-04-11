@@ -115,7 +115,7 @@ async def f_edit_order_text(message: Message, state: FSMContext, session: AsyncS
     await orm_update_customer_info(session=session,
                                    user_id=message.from_user.id,
                                    order_text=message.text,
-                                   in_edit=True)
+                                   in_edit=False)
     if data.order_photo:
         await message.answer_photo(caption=main_order_text,
                                    reply_markup=await my_order_btns(),

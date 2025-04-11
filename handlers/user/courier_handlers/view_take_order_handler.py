@@ -1,4 +1,3 @@
-from Demos.win32ts_logoff_disconnected import session
 from aiogram import F, Router
 from aiogram.types import CallbackQuery
 from sqlalchemy.ext.asyncio import AsyncSession
