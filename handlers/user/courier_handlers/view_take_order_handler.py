@@ -6,22 +6,26 @@ from common.texts.user_texts import courier_text
 from common.filters.order_in_edit_or_deleted_filter import OrderInEditOrDeletedFilter
 from kbds.inline_kbds.user_inline_kbds import orders_kbds
 from kbds.inline_kbds.user_inline_kbds import take_order_kbds
-from database.sessions.user_session.order_session import orm_get_order
+from database.sessions.user_session.order_session import orm_get_order, orm_get_customer_info
+from database.sessions.user_session.order_session import orm_get_costumer_attr
 
 view_take_order_router = Router()
 
 @view_take_order_router.callback_query(F.data.startswith('courier_'))
 async def f_view_orders(callback: CallbackQuery, session: AsyncSession):
     callback_data = callback.data.split("_")[-1]
-    if callback_data == 'courier': page=0
+    if callback_data == '0': page=0
     else: page = int(callback_data)
 
+    orders_list = await orm_get_costumer_attr(session=session,
+                                                   attr='order_id')
+    all_pages = int(len(orders_list) / 5)
     try:
-        await callback.message.edit_text(text=courier_text['view_orders'],
+        await callback.message.edit_text(text=courier_text['view_orders'].format(page=int(page/5)+1, len_pages=all_pages),
                                          reply_markup = await orders_kbds(session, page))
     except:
         await callback.message.edit_reply_markup(reply_markup=None)
-        await callback.message.answer(text=courier_text['view_orders'],
+        await callback.message.answer(text=courier_text['view_orders'].format(page=page, len_pages=all_pages),
                                       reply_markup = await orders_kbds(session, page))
 
 @view_take_order_router.callback_query(OrderInEditOrDeletedFilter())
@@ -51,3 +55,10 @@ async def f_view_order(callback: CallbackQuery, session: AsyncSession):
     await callback.message.edit_text(text=view_order_text,
                                      reply_markup = await take_order_kbds(order_id=order_id,
                                                                                  page=page))
+
+@view_take_order_router.callback_query(F.data.startswith('take_order_'))
+async def f_take_order(callback: CallbackQuery, session: AsyncSession):
+    callback_data = callback.data.split('_')
+    order_id = int(callback_data[-2])
+    print(order_id)
+    
