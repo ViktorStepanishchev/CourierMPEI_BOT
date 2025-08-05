@@ -22,3 +22,7 @@ class AnswerMessageAdministration(StatesGroup):
     user_id = State()
     user_username = State()
     admin_msg_id = State()
+
+class CourierStates(StatesGroup):
+    order_id = State()
+    waiting_for_phone = State()

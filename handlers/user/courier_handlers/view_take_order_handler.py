@@ -1,14 +1,18 @@
 from aiogram import F, Router
-from aiogram.types import CallbackQuery
+from aiogram.fsm.context import FSMContext
+from aiogram.types import CallbackQuery, Message
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from common.texts.user_texts import courier_text
+from common.texts.user_texts import courier_text, user_text
 from common.filters.order_in_edit_or_deleted_filter import OrderInEditOrDeletedFilter
+from common.states import CourierStates
+from database.sessions.user_session.courier_session import orm_update_courier, orm_add_courier
 from kbds.inline_kbds.user_inline_kbds import orders_kbds
 from kbds.inline_kbds.user_inline_kbds import take_order_kbds
 from database.sessions.user_session.order_session import (orm_get_order,
                                                           orm_get_costumer_attr,
                                                           orm_update_customer_info)
+from kbds.reply_kbds.user_reply_kbds import get_send_phone
 
 view_take_order_router = Router()
 
@@ -58,9 +62,48 @@ async def f_view_order(callback: CallbackQuery, session: AsyncSession):
                                                                                  page=page))
 
 @view_take_order_router.callback_query(F.data.startswith('take_order_'))
-async def f_take_order(callback: CallbackQuery, session: AsyncSession):
+async def f_take_order(callback: CallbackQuery, session: AsyncSession, state: FSMContext):
     callback_data = callback.data.split('_')
     order_id = int(callback_data[-2])
+    await state.update_data(order_id=order_id)
+
+    await callback.message.edit_reply_markup(reply_markup=None)
+    await callback.message.answer(text = user_text["courier_phone_number"],
+                                  reply_markup = await get_send_phone())
+    await state.set_state(CourierStates.waiting_for_phone)
+
+@view_take_order_router.message(CourierStates.waiting_for_phone, F.contact)
+async def f_send_phone_number_by_courier(message: Message, state: FSMContext, session: AsyncSession):
+    courier_data = await state.get_data()
+    courier_phone_number = message.contact.phone_number
+    order_id = courier_data['order_id']
+
+    await state.clear()
+
+    await orm_add_courier(session=session,
+                          user_id = message.from_user.id,
+                          username = message.from_user.username)
+    await orm_update_courier(session=session,
+                             user_id=message.from_user.id,
+                             order_id=order_id,
+                             phone_number=courier_phone_number)
+
     await orm_update_customer_info(session=session,
-                                   search_value=callback.message.from_user.id,)
-    
+                                   search_by="order_id",
+                                   search_value=order_id,
+                                   in_execution=True,
+                                   courier_id = message.from_user.id)
+
+    user_data = await orm_get_order(session=session, order_id=order_id)
+    user_username = user_data.username
+    user_phone = user_data.order_phone_number
+    user_id = user_data.user_id
+
+    await message.bot.send_message(text = user_text["the_order_was_taken"].format(order_id=order_id,
+                                                                                  username=message.from_user.username,
+                                                                                  phone_number=courier_phone_number),
+                                   chat_id=user_id)
+    await message.answer(text = courier_text["the_order_was_taken"].format(order_id=order_id,
+                                                                                username=user_username,
+                                                                                phone_number=user_phone))
+

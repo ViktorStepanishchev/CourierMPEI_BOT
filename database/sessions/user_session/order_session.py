@@ -34,7 +34,7 @@ async def orm_update_customer_info(session: AsyncSession,
                                    search_by: str = "user_id",
                                    search_value: str = None,
                                    **kwargs) -> None:
-    fields = ['order_text', 'order_photo', 'in_execution', 'in_edit']
+    fields = ['order_text', 'order_photo', 'in_execution', 'in_edit', 'courier_id']
     result = await session.execute(select(Customer).where(getattr(Customer, search_by) == search_value))
     user_data = result.scalar_one_or_none()
     for field in fields:

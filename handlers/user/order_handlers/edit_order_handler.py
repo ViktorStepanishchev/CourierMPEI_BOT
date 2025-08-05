@@ -3,6 +3,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from common.filters.order_in_execution_filter import OrderInExecutionFilter
 from database.sessions.user_session.order_session import (orm_get_customer_info,
                                                           orm_update_customer_info, orm_delete_order)
 from common.texts.user_texts import user_text
@@ -130,3 +131,7 @@ async def f_edit_order_full(message: Message, state: FSMContext, session: AsyncS
 
     await state.set_state(CreateOrder.order_text)
     await message.answer(text=user_text['order_text'])
+
+@edit_order_router.message(OrderInExecutionFilter())
+async def f_order_in_execution(message: Message, state: FSMContext, session: AsyncSession):
+    ...

@@ -17,7 +17,7 @@ async def orm_update_courier(session: AsyncSession,
     result = await session.execute(select(Courier).where(Courier.user_id == user_id))
     user_data = result.scalar_one_or_none()
 
-    fields = ['user_id', 'username', 'order_id']
+    fields = ['user_id', 'username', 'order_id', 'phone_number']
     for field in fields:
         if field in kwargs and kwargs[field]:
             setattr(user_data, field, kwargs[field])
