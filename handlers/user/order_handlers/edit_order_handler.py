@@ -10,9 +10,20 @@ from common.texts.user_texts import user_text
 from common.states import EditOrder, CreateOrder
 from kbds.reply_kbds.user_reply_kbds import (edit_order_kbds,
                                              skip_kbds)
-from kbds.inline_kbds.user_inline_kbds import my_order_btns
+from kbds.inline_kbds.user_inline_kbds import (my_order_btns,
+                                               to_main_menu_kbds)
 
 edit_order_router = Router()
+
+@edit_order_router.message(OrderInExecutionFilter())
+async def f_order_in_execution(message: Message, state: FSMContext, session: AsyncSession):
+    await state.clear()
+    try:
+        await message.edit_reply_markup(reply_markup=None)
+    except:
+        pass
+    await message.answer(text=user_text['order_in_execution_error'],
+                         reply_markup= await to_main_menu_kbds())
 
 @edit_order_router.callback_query(F.data == 'edit_order')
 async def f_edit_order(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
@@ -132,6 +143,3 @@ async def f_edit_order_full(message: Message, state: FSMContext, session: AsyncS
     await state.set_state(CreateOrder.order_text)
     await message.answer(text=user_text['order_text'])
 
-@edit_order_router.message(OrderInExecutionFilter())
-async def f_order_in_execution(message: Message, state: FSMContext, session: AsyncSession):
-    ...

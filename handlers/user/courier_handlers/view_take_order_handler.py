@@ -7,7 +7,7 @@ from common.texts.user_texts import courier_text, user_text
 from common.filters.order_in_edit_or_deleted_filter import OrderInEditOrDeletedFilter
 from common.states import CourierStates
 from database.sessions.user_session.courier_session import orm_update_courier, orm_add_courier
-from kbds.inline_kbds.user_inline_kbds import orders_kbds
+from kbds.inline_kbds.user_inline_kbds import orders_kbds, to_main_menu_kbds
 from kbds.inline_kbds.user_inline_kbds import take_order_kbds
 from database.sessions.user_session.order_session import (orm_get_order,
                                                           orm_get_costumer_attr,
@@ -105,5 +105,6 @@ async def f_send_phone_number_by_courier(message: Message, state: FSMContext, se
                                    chat_id=user_id)
     await message.answer(text = courier_text["the_order_was_taken"].format(order_id=order_id,
                                                                                 username=user_username,
-                                                                                phone_number=user_phone))
+                                                                                phone_number=user_phone),
+                         reply_markup = await to_main_menu_kbds())
 
