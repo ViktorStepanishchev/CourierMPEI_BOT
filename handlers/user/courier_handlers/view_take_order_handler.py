@@ -6,8 +6,9 @@ from common.texts.user_texts import courier_text
 from common.filters.order_in_edit_or_deleted_filter import OrderInEditOrDeletedFilter
 from kbds.inline_kbds.user_inline_kbds import orders_kbds
 from kbds.inline_kbds.user_inline_kbds import take_order_kbds
-from database.sessions.user_session.order_session import orm_get_order, orm_get_customer_info
-from database.sessions.user_session.order_session import orm_get_costumer_attr
+from database.sessions.user_session.order_session import (orm_get_order,
+                                                          orm_get_costumer_attr,
+                                                          orm_update_customer_info)
 
 view_take_order_router = Router()
 
@@ -60,5 +61,6 @@ async def f_view_order(callback: CallbackQuery, session: AsyncSession):
 async def f_take_order(callback: CallbackQuery, session: AsyncSession):
     callback_data = callback.data.split('_')
     order_id = int(callback_data[-2])
-    print(order_id)
+    await orm_update_customer_info(session=session,
+                                   search_value=callback.message.from_user.id,)
     
