@@ -3,7 +3,7 @@ from aiogram.utils.keyboard import InlineKeyboardMarkup, InlineKeyboardBuilder
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from common.texts.user_texts import courier_text
-from database.sessions.user_session.order_session import orm_get_costumer_attr
+from database.sessions.user_session.order_session import orm_get_free_orders
 
 from kbds.inline_kbds.gen_inline_kbds import get_callback_btns
 
@@ -62,9 +62,7 @@ async def help_kbds():
 
 async def orders_kbds(session: AsyncSession, page: int):
 
-
-    orders_data_list = await orm_get_costumer_attr(session=session,
-                                                   attr='order_id')
+    orders_data_list = await orm_get_free_orders(session=session)
     builder = InlineKeyboardBuilder()
     builder.row(
         InlineKeyboardButton(text="⬅️ Вернуться в меню", callback_data="back_to_main_menu"))
@@ -88,6 +86,12 @@ async def take_order_kbds(order_id: int,
                      page: int):
     btns = {
         "Взять ✅": f"take_order_{order_id}_{page}",
+        "« Назад": f"courier_{page}"
+    }
+    return await get_callback_btns(btns=btns, sizes=(1,))
+
+async def back_to_orders_kbds(page: int):
+    btns = {
         "« Назад": f"courier_{page}"
     }
     return await get_callback_btns(btns=btns, sizes=(1,))

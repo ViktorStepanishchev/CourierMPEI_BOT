@@ -7,11 +7,11 @@ from common.texts.user_texts import courier_text, user_text
 from common.filters.order_in_edit_or_deleted_filter import OrderInEditOrDeletedFilter
 from common.states import CourierStates
 from database.sessions.user_session.courier_session import orm_update_courier, orm_add_courier
-from kbds.inline_kbds.user_inline_kbds import orders_kbds, to_main_menu_kbds
+from kbds.inline_kbds.user_inline_kbds import orders_kbds, to_main_menu_kbds, back_to_orders_kbds
 from kbds.inline_kbds.user_inline_kbds import take_order_kbds
 from database.sessions.user_session.order_session import (orm_get_order,
                                                           orm_get_costumer_attr,
-                                                          orm_update_customer_info)
+                                                          orm_update_customer_info, orm_get_free_orders)
 from kbds.reply_kbds.user_reply_kbds import get_send_phone
 
 view_take_order_router = Router()
@@ -22,8 +22,7 @@ async def f_view_orders(callback: CallbackQuery, session: AsyncSession):
     if callback_data == '0': page=0
     else: page = int(callback_data)
 
-    orders_list = await orm_get_costumer_attr(session=session,
-                                                   attr='order_id')
+    orders_list = await orm_get_free_orders(session=session)
     all_pages = int(len(orders_list) / 5)
     try:
         await callback.message.edit_text(text=courier_text['view_orders'].format(page=int(page/5)+1, len_pages=all_pages),
@@ -62,9 +61,17 @@ async def f_view_order(callback: CallbackQuery, session: AsyncSession):
                                                                                  page=page))
 
 @view_take_order_router.callback_query(F.data.startswith('take_order_'))
-async def f_take_order(callback: CallbackQuery, session: AsyncSession, state: FSMContext):
+async def f_take_order(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     callback_data = callback.data.split('_')
     order_id = int(callback_data[-2])
+    order_data = await orm_get_order(session=session,
+                        order_id=order_id)
+    if order_data.username == callback.from_user.username:
+        page = int(callback.data.split("_")[-1])
+        await callback.message.edit_reply_markup(reply_markup=None)
+        await callback.message.edit_text(text = courier_text["take_your_order_error"],
+                                         reply_markup= await back_to_orders_kbds(page=page))
+        return
     await state.update_data(order_id=order_id)
 
     await callback.message.edit_reply_markup(reply_markup=None)

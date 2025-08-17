@@ -26,8 +26,11 @@ async def orm_add_customer(session: AsyncSession,
 
 async def orm_get_costumer_attr(session: AsyncSession,
                                 attr: str) -> Customer:
-    column_data = getattr(Customer, attr)
-    result = await session.execute(select(column_data))
+    result = await session.execute(select(getattr(Customer, attr)))
+    return result.scalars().all()
+
+async def orm_get_free_orders(session: AsyncSession):
+    result = await session.execute(select(Customer.order_id).where(Customer.in_execution == False))
     return result.scalars().all()
 
 async def orm_update_customer_info(session: AsyncSession,
